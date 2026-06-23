@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cálculo I · Integración (III Parcial)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root {
+    --bg: #0e1014;
+    --bg-elev: #161922;
+    --bg-card: #1c2030;
+    --ink: #e8e6df;
+    --ink-dim: #9ea0a8;
+    --ink-faint: #5a5d68;
+    --accent: #d4a574;
+    --accent-soft: #b8865a;
+    --line: #2a2f3e;
+    --correct: #7fb88f;
+    --wrong: #d97a7a;
+    --accent-id: #6db8c8;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(ellipse at top right, rgba(212, 165, 116, 0.04), transparent 60%),
+      radial-gradient(ellipse at bottom left, rgba(127, 184, 143, 0.03), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.025;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .shell {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 28px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .brand h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 32px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .brand h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .brand .sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    margin-top: 4px;
+  }
+
+  .meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    text-align: right;
+  }
+  .meta strong { color: var(--ink-dim); font-weight: 500; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    background: none;
+    border: none;
+    color: var(--ink-faint);
+    padding: 14px 20px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    position: relative;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+  .tab .num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    margin-right: 8px;
+    opacity: 0.6;
+  }
+  .tab:hover { color: var(--ink-dim); }
+  .tab.active { color: var(--ink); }
+  .tab.active .num { color: var(--accent); opacity: 1; }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  /* SECTIONS */
+  .panel { display: none; animation: fadeIn 0.4s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === FLASHCARDS === */
+  .deck-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .category-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    padding: 7px 13px;
+    border-radius: 100px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+  }
+  .pill:hover { border-color: var(--accent-soft); color: var(--ink); }
+  .pill.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a1410;
+  }
+  .progress {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+  }
+  .progress strong { color: var(--accent); font-weight: 700; }
+
+  .card-stage {
+    perspective: 1500px;
+    margin: 32px auto;
+    max-width: 640px;
+    height: 360px;
+  }
+  .card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0.0, 0.2, 1);
+    cursor: pointer;
+  }
+  .card.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,165,116,0.05) inset;
+  }
+  .card-face::before {
+    content: '';
+    position: absolute;
+    top: 16px; left: 16px; right: 16px; bottom: 16px;
+    border: 1px solid rgba(212, 165, 116, 0.08);
+    pointer-events: none;
+    border-radius: 2px;
+  }
+  .card-face.back { transform: rotateY(180deg); }
+
+  .card-tag {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .card-tag.front { color: var(--accent); }
+
+  .tier-badge {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display: none;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 100px;
+    border: 1px solid currentColor;
+  }
+  .tier-badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+  .tier-badge.t1 { color: var(--wrong); display: flex; }
+  .tier-badge.t2 { color: var(--accent); display: flex; }
+
+  /* Tarjetas de identidades/límites — color teal */
+  .card.identity-type .card-face {
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5), 0 0 0 1px rgba(109,184,200,0.07) inset;
+  }
+  .card.identity-type .card-face::before {
+    border-color: rgba(109, 184, 200, 0.12);
+  }
+  .card.identity-type .card-tag.front { color: var(--accent-id); }
+  .card.identity-type .card-face { border-color: rgba(109,184,200,0.18); }
+  .card.identity-type .card-content { color: var(--ink); }
+  .card-content {
+    font-size: 28px;
+    font-family: var(--serif);
+  }
+  .card-content .katex { font-size: 1.6em; }
+  .card-content .katex-display { margin: 0; }
+
+  .card-hint {
+    position: absolute;
+    bottom: 24px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .deck-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .nav-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: scale(1.05);
+  }
+  .nav-btn.flip {
+    width: auto;
+    border-radius: 100px;
+    padding: 0 22px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .shuffle-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .shuffle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* === QUIZ === */
+  .quiz-intro {
+    text-align: center;
+    padding: 60px 20px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .quiz-intro h2 {
+    font-family: var(--serif);
+    font-size: 38px;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .quiz-intro h2 em { color: var(--accent); font-style: italic; }
+  .quiz-intro p {
+    color: var(--ink-dim);
+    margin-bottom: 28px;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+  .quiz-config {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .start-btn {
+    background: var(--accent);
+    color: #1a1410;
+    border: none;
+    padding: 14px 36px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .start-btn:hover {
+    background: var(--ink);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(212,165,116,0.2);
+  }
+
+  .quiz-game {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .quiz-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .quiz-bar .score strong {
+    color: var(--accent);
+    font-size: 14px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 2px;
+    background: var(--line);
+    margin: 0 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .question-block {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+    position: relative;
+  }
+  .question-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 16px;
+  }
+  .question-formula {
+    font-family: var(--serif);
+    font-size: 26px;
+  }
+  .question-formula .katex { font-size: 1.5em; }
+
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .option {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 22px 24px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--ink);
+    font-family: var(--serif);
+    transition: all 0.2s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: rgba(212, 165, 116, 0.04);
+  }
+  .option.disabled { cursor: default; opacity: 0.5; }
+  .option.correct {
+    border-color: var(--correct);
+    background: rgba(127, 184, 143, 0.08);
+    opacity: 1;
+  }
+  .option.wrong {
+    border-color: var(--wrong);
+    background: rgba(217, 122, 122, 0.08);
+    opacity: 1;
+  }
+  .option-letter {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .option.correct .option-letter { color: var(--correct); border-color: var(--correct); }
+  .option.wrong .option-letter { color: var(--wrong); border-color: var(--wrong); }
+  .option-text { font-size: 17px; }
+  .option-text .katex { font-size: 1.05em; }
+
+  .next-row { text-align: center; margin-top: 24px; min-height: 50px; }
+  .next-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 12px 30px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .next-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .next-btn:hover { background: var(--accent); color: #1a1410; }
+
+  .quiz-result {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .quiz-result h2 {
+    font-family: var(--serif);
+    font-size: 64px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .quiz-result .total {
+    font-family: var(--mono);
+    color: var(--ink-faint);
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .quiz-result .verdict {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink-dim);
+    font-size: 18px;
+    margin-bottom: 32px;
+  }
+
+  /* === CHEAT SHEET === */
+  .sheet {
+    display: grid;
+    gap: 36px;
+  }
+  .sheet-section h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .sheet-section h2 .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+  }
+  .sheet-section h2 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .sheet-section .sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .formula-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .formula-table thead th {
+    background: var(--bg-elev);
+    padding: 10px 18px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom: 2px solid var(--line);
+    font-weight: 500;
+  }
+  .formula-table thead th:first-child {
+    border-right: 1px solid var(--line);
+    width: 45%;
+  }
+  .formula-table tbody tr {
+    border-bottom: 1px solid var(--line);
+    transition: background 0.15s;
+  }
+  .formula-table tbody tr:last-child {
+    border-bottom: none;
+  }
+  .formula-table tbody tr:hover {
+    background: rgba(212, 165, 116, 0.04);
+  }
+  .formula-table td {
+    padding: 13px 18px;
+    vertical-align: middle;
+    font-family: var(--serif);
+    font-size: 18px;
+  }
+  .formula-table td:first-child {
+    color: var(--ink);
+    border-right: 1px solid var(--line);
+  }
+  .formula-table td:last-child {
+    color: var(--accent);
+  }
+  .formula-table td .katex { font-size: 1.05em; }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .shell { padding: 20px 16px 60px; }
+    .brand h1 { font-size: 26px; }
+    .options { grid-template-columns: 1fr; }
+    .card-stage { height: 320px; }
+    .card-content { font-size: 22px; }
+    .question-block { padding: 28px 18px; }
+    .question-formula { font-size: 22px; }
+    .formula-table td, .formula-table thead th { padding: 9px 12px; font-size: 15px; }
+    header { flex-direction: column; align-items: flex-start; }
+    .meta { text-align: left; }
+  }
+
+  .sheet-note {
+    margin-top: 10px;
+    padding: 9px 14px;
+    border-left: 2px solid var(--accent-soft);
+    background: rgba(212,165,116,0.04);
+    border-radius: 0 3px 3px 0;
+    font-size: 13px;
+    color: var(--ink-dim);
+    line-height: 1.65;
+  }
+  .sheet-note strong { color: var(--ink); }
+
+  /* PRINT */
+  @media print {
+    body { background: white; color: black; }
+    .grain, header, .tabs, .panel:not(#sheet) { display: none !important; }
+    #sheet { display: block !important; }
+    .formula-key, .formula-val { color: black; }
+    .sheet-section h2 em, .sheet-section h2 .num { color: #8b6c47; }
+  }
+
+  /* ===== GUÍA (04) ===== */
+  #guide { max-width: 820px; margin: 0 auto; }
+  .guide-intro { font-family: var(--serif); font-size: 1.3rem; font-style: italic; color: var(--ink-dim); text-align: center; line-height: 1.5; margin: 0 auto 34px; max-width: 58ch; }
+  .guide-intro em { color: var(--accent); font-style: italic; }
+  .guide-block { background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; padding: 22px 26px; margin-bottom: 16px; }
+  .guide-block h3 { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; letter-spacing: -.01em; margin: 0 0 13px; display: flex; align-items: center; gap: 13px; color: var(--ink); }
+  .gbadge { flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--accent-soft); color: #1a1208; font-family: var(--mono); font-weight: 700; font-size: .95rem; display: flex; align-items: center; justify-content: center; }
+  .guide-block p { font-size: .97rem; color: var(--ink-dim); line-height: 1.65; margin: 0 0 11px; }
+  .guide-block p strong { color: var(--ink); font-weight: 600; }
+  .guide-block p:last-child { margin-bottom: 0; }
+  .when { display: inline-flex; align-items: baseline; flex-wrap: wrap; font-size: .85rem; font-family: var(--sans); color: var(--ink); background: var(--bg-elev); border: 1px solid var(--line); border-radius: 999px; padding: 6px 15px; margin: 0 0 15px; line-height: 1.4; }
+  .when b { color: var(--accent); font-family: var(--mono); font-weight: 700; font-size: .72rem; letter-spacing: .12em; margin-right: 10px; text-transform: uppercase; }
+  .guide-block ol.steps { margin: 6px 0 13px; padding-left: 0; list-style: none; counter-reset: st; }
+  .guide-block ol.steps li { counter-increment: st; position: relative; padding-left: 31px; margin-bottom: 8px; font-size: .94rem; color: var(--ink-dim); line-height: 1.55; }
+  .guide-block ol.steps li::before { content: counter(st); position: absolute; left: 0; top: 1px; width: 21px; height: 21px; border-radius: 6px; background: var(--bg-elev); border: 1px solid var(--line); color: var(--accent); font-family: var(--mono); font-size: .72rem; display: flex; align-items: center; justify-content: center; }
+  .eg { background: var(--bg-elev); border-left: 3px solid var(--accent-soft); border-radius: 0 8px 8px 0; padding: 11px 16px; margin-top: 12px; font-size: .93rem; color: var(--ink-dim); }
+  .eg .lbl { font-family: var(--mono); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); display: block; margin-bottom: 5px; }
+  .guide-block .katex { color: var(--ink); }
+  .guide-block .katex-display { margin: 12px 0; overflow-x: auto; overflow-y: hidden; }
+  .guide-final { background: linear-gradient(135deg, rgba(212,165,116,.09), rgba(127,184,143,.05)); border-color: rgba(212,165,116,.3); }
+  .guide-block ul.chk { list-style: none; padding-left: 0; margin: 4px 0 0; }
+  .guide-block ul.chk li { position: relative; padding-left: 27px; margin-bottom: 9px; font-size: .95rem; color: var(--ink-dim); line-height: 1.5; }
+  .guide-block ul.chk li::before { content: '\2713'; position: absolute; left: 0; top: 0; color: var(--correct); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="shell">
+
+  <header>
+    <div class="brand">
+      <h1>Cálculo <em>I</em> · Estudio</h1>
+      <div class="sub">IF0008 — Integración · III Parcial</div>
+    </div>
+    <div class="meta">
+      <strong>UCR — Sede de Occidente</strong><br>
+      I Semestre 2026
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-panel="cards"><span class="num">01</span>Flashcards</button>
+    <button class="tab" data-panel="quiz"><span class="num">02</span>Quiz</button>
+    <button class="tab" data-panel="sheet"><span class="num">03</span>Tabla</button>
+    <button class="tab" data-panel="guide"><span class="num">04</span>Guía</button>
+  </nav>
+
+  <!-- ====================== FLASHCARDS ====================== -->
+  <section class="panel active" id="cards">
+    <div class="deck-controls">
+      <div class="category-pills" id="cat-pills"></div>
+      <button class="shuffle-btn" id="shuffle-btn">↻ Mezclar</button>
+    </div>
+
+    <div class="card-stage">
+      <div class="card" id="card">
+        <div class="card-face front">
+          <div class="card-tag front" id="tag-front"></div>
+          <div class="tier-badge" id="tier-badge"></div>
+          <div class="card-content" id="front-content"></div>
+          <div class="card-hint">Tocá la tarjeta para ver la respuesta</div>
+        </div>
+        <div class="card-face back">
+          <div class="card-tag" id="tag-back"></div>
+          <div class="card-content" id="back-content"></div>
+          <div class="card-hint">Tocá para volver</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deck-nav">
+      <button class="nav-btn" id="prev-btn" aria-label="Anterior">←</button>
+      <button class="nav-btn flip" id="flip-btn">Voltear</button>
+      <button class="nav-btn" id="next-btn" aria-label="Siguiente">→</button>
+    </div>
+
+    <div class="progress" style="text-align:center; margin-top:18px;">
+      <span id="card-progress"></span>
+    </div>
+  </section>
+
+  <!-- ====================== QUIZ ====================== -->
+  <section class="panel" id="quiz">
+    <div id="quiz-intro" class="quiz-intro">
+      <h2>Pon a prueba tu <em>memoria</em></h2>
+      <p>Preguntas de opción múltiple sobre integrales: inmediatas, técnicas, definida y áreas. Sin presión, solo práctica.</p>
+      <div class="quiz-config" id="quiz-config"></div>
+      <button class="start-btn" id="start-quiz">Comenzar →</button>
+    </div>
+
+    <div id="quiz-game" class="quiz-game" style="display:none;">
+      <div class="quiz-bar">
+        <span class="score">Puntos: <strong id="score-num">0</strong></span>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="transform:scaleX(0);"></div></div>
+        <span id="qnum">1 / 10</span>
+      </div>
+
+      <div class="question-block">
+        <div class="question-label" id="q-label">Integrá la siguiente función</div>
+        <div class="question-formula" id="q-formula"></div>
+      </div>
+
+      <div class="options" id="options"></div>
+      <div class="next-row"><button class="next-btn" id="next-q">Siguiente →</button></div>
+    </div>
+
+    <div id="quiz-result" class="quiz-result" style="display:none;">
+      <div class="total">Resultado final</div>
+      <h2 id="final-score">0 / 10</h2>
+      <div class="verdict" id="verdict"></div>
+      <button class="start-btn" id="restart">Otra vez</button>
+    </div>
+  </section>
+
+  <!-- ====================== CHEAT SHEET ====================== -->
+  <section class="panel" id="sheet">
+    <div class="sheet" id="sheet-content"></div>
+  </section>
+
+  <!-- ====================== GUÍA ====================== -->
+  <section class="panel" id="guide">
+    <p class="guide-intro">La meta: poder explicar cada método en voz alta. Si podés decir <em>qué es, cuándo se usa y cómo se hace</em> sin ver los apuntes, lo tenés dominado.</p>
+
+    <article class="guide-block">
+      <h3><span class="gbadge">A</span>La integral indefinida</h3>
+      <p>Integrar es <strong>deshacer una derivada</strong>. Dada $f(x)$, busco una función $F(x)$ cuya derivada sea $f$; a esa $F$ la llamo antiderivada. La respuesta lleva siempre $+C$ porque la derivada de cualquier constante es $0$.</p>
+      $$\int f(x)\,dx = F(x)+C \quad\Longleftrightarrow\quad F'(x)=f(x)$$
+      <p>Reconocer una integral inmediata es acordarme de qué derivada la produce. Por <strong>linealidad</strong>, las constantes salen y las sumas se separan: $\int[a\,f+b\,g]\,dx = a\int f\,dx + b\int g\,dx$.</p>
+    </article>
+
+    <article class="guide-block">
+      <h3><span class="gbadge">B</span>Sustitución (cambio de variable)</h3>
+      <span class="when"><b>CUÁNDO</b> veo una función y, multiplicando, su derivada</span>
+      <p>Es la regla de la cadena al revés. La uso cuando dentro de la integral aparece una función $g(x)$ junto con un múltiplo de su derivada $g'(x)$.</p>
+      <ol class="steps">
+        <li>Elijo $u=g(x)$ (lo de "adentro").</li>
+        <li>Calculo $du=g'(x)\,dx$ y despejo lo que necesito.</li>
+        <li>Reemplazo todo en términos de $u$ &mdash; no debe quedar ninguna $x$.</li>
+        <li>Integro en $u$ y al final devuelvo $u=g(x)$.</li>
+      </ol>
+      <div class="eg"><span class="lbl">Ejemplo</span>$\int 2x\,e^{x^2}\,dx$: con $u=x^2$ y $du=2x\,dx$ queda $\int e^{u}\,du = e^{u}+C = e^{x^2}+C$.</div>
+    </article>
+
+    <article class="guide-block">
+      <h3><span class="gbadge">C</span>Integración por partes</h3>
+      <span class="when"><b>CUÁNDO</b> producto de dos funciones de tipo distinto</span>
+      <p>Cuando hay un producto que no sale por sustitución (polinomio por exponencial, algo con $\ln x$, polinomio por trig). Nace de la derivada del producto:</p>
+      $$\int u\,dv = uv - \int v\,du$$
+      <p>Elijo $u$ con <strong>ILATE</strong> (Inversas, Logarítmicas, Algebraicas, Trigonométricas, Exponenciales): $u$ es lo que aparezca primero en esa lista y $dv$ es todo el resto, incluido $dx$. Si la integral original reaparece, la despejo (<strong>caso cíclico</strong>).</p>
+      <div class="eg"><span class="lbl">Ejemplo</span>$\int x\,e^x\,dx$: con $u=x,\ dv=e^x\,dx$ tengo $du=dx,\ v=e^x$, entonces $xe^x-\int e^x\,dx = xe^x-e^x+C$.</div>
+    </article>
+
+    <article class="guide-block">
+      <h3><span class="gbadge">D</span>Fracciones parciales</h3>
+      <span class="when"><b>CUÁNDO</b> un cociente de polinomios</span>
+      <p>Para integrar $\dfrac{P(x)}{Q(x)}$ con $P,Q$ polinomios. Requisito: $\operatorname{grado}(P)<\operatorname{grado}(Q)$; si no se cumple, divido primero.</p>
+      <ol class="steps">
+        <li>Factorizo el denominador $Q(x)$.</li>
+        <li>Escribo una fracción por factor: lineal $\dfrac{A}{x-a}$; lineal repetido $\dfrac{A}{x-a}+\dfrac{B}{(x-a)^2}$; cuadrático irreducible $\dfrac{Ax+B}{x^2+bx+c}$.</li>
+        <li>Multiplico por $Q(x)$ y resuelvo las constantes $A,B,\dots$ (evaluando en las raíces o igualando coeficientes).</li>
+        <li>Integro cada pedazo: casi siempre dan $\ln$ y $\arctan$.</li>
+      </ol>
+    </article>
+
+    <article class="guide-block">
+      <h3><span class="gbadge">E</span>Completar cuadrados + inversas</h3>
+      <span class="when"><b>CUÁNDO</b> un denominador cuadrático que no factoriza</span>
+      <p>Si el denominador es un cuadrático irreducible (sin raíces reales), completo cuadrados para llevarlo a la forma $a^2+u^2$ o $a^2-u^2$, y reconozco arctan o arcsin:</p>
+      $$\int\frac{du}{a^2+u^2}=\frac{1}{a}\arctan\frac{u}{a}+C \qquad \int\frac{du}{\sqrt{a^2-u^2}}=\operatorname{arcsen}\frac{u}{a}+C$$
+    </article>
+
+    <article class="guide-block">
+      <h3><span class="gbadge">F</span>Sustitución $t=\tan(\theta/2)$</h3>
+      <span class="when"><b>CUÁNDO</b> una función racional de seno y coseno</span>
+      <p>Convierte cualquier combinación racional de $\operatorname{sen}\theta$ y $\cos\theta$ en una fracción algebraica en $t$. Las tres equivalencias que hay que memorizar:</p>
+      $$\operatorname{sen}\theta=\frac{2t}{1+t^2},\qquad \cos\theta=\frac{1-t^2}{1+t^2},\qquad d\theta=\frac{2\,dt}{1+t^2}$$
+      <p>Después de sustituir suele quedar una fracción que se termina con fracciones parciales.</p>
+    </article>
+
+    <article class="guide-block">
+      <h3><span class="gbadge">G</span>La integral definida (T.F.C.)</h3>
+      <span class="when"><b>CUÁNDO</b> hay límites; el resultado es un número</span>
+      <p>Acá la integral deja de ser una familia y pasa a ser <strong>un número</strong> (el área neta entre $a$ y $b$). El Teorema Fundamental del Cálculo dice:</p>
+      $$\int_a^b f(x)\,dx = F(b)-F(a)$$
+      <ol class="steps">
+        <li>Encuentro la antiderivada $F$ con cualquier técnica de arriba.</li>
+        <li>Evalúo $F(b)-F(a)$. El $+C$ se cancela, así que no hace falta escribirlo.</li>
+      </ol>
+      <p>Propiedades: $\int_a^a f=0$; invertir los límites cambia el signo, $\int_a^b f=-\int_b^a f$; y puedo partir, $\int_a^b f=\int_a^c f+\int_c^b f$.</p>
+    </article>
+
+    <article class="guide-block">
+      <h3><span class="gbadge">H</span>Sustitución y partes en definidas</h3>
+      <p>Igual que en las indefinidas, con un cuidado extra: si hago un cambio de variable, <strong>tengo que cambiar también los límites</strong> a la nueva variable (o devolver la variable original antes de evaluar). En por partes, evalúo el término de borde:</p>
+      $$\int_a^b u\,dv = \big[uv\big]_a^b - \int_a^b v\,du$$
+    </article>
+
+    <article class="guide-block">
+      <h3><span class="gbadge">I</span>Áreas</h3>
+      <span class="when"><b>CUÁNDO</b> me piden el área de una región</span>
+      <p><strong>Bajo la curva</strong> (si $f\ge 0$): $A=\int_a^b f(x)\,dx$. Si la función cruza el eje, uso $|f|$ y parto el intervalo donde cambia de signo.</p>
+      <p><strong>Entre dos curvas</strong>: integro la de arriba menos la de abajo.</p>
+      $$A=\int_a^b\big[f(x)-g(x)\big]\,dx,\qquad f\ge g$$
+      <ol class="steps">
+        <li>Igualo las funciones para hallar las intersecciones (los límites $a$ y $b$).</li>
+        <li>Decido cuál curva va arriba en ese intervalo.</li>
+        <li>Integro (superior menos inferior). Si se cruzan, parto en cada intersección.</li>
+      </ol>
+      <p>Regla de oro: <strong>siempre hacer el dibujo primero</strong>.</p>
+    </article>
+
+    <article class="guide-block guide-final">
+      <h3><span class="gbadge">&#10003;</span>Antes de entregar</h3>
+      <ul class="chk">
+        <li>Puse el $+C$ en toda integral indefinida.</li>
+        <li>Cambié los límites en la sustitución de una definida.</li>
+        <li>En fracciones parciales, el grado de arriba es menor que el de abajo.</li>
+        <li>Elegí $u$ con ILATE en por partes.</li>
+        <li>Verifiqué derivando: si vuelvo al integrando, está bien.</li>
+      </ul>
+    </article>
+  </section>
+
+
+</div>
+
+<script>
+/* ============================================================
+   DATOS — flashcards y formulario
+============================================================ */
+
+const DECKS = {
+  inmediatas: {
+    name: 'Inmediatas',
+    cards: [
+      { f: '\\int k\\,dx', d: 'kx + C' },
+      { f: '\\int x^n\\,dx', d: '\\dfrac{x^{n+1}}{n+1}+C,\\;\\; n\\neq-1' },
+      { f: '\\int \\dfrac{1}{x}\\,dx', d: '\\ln|x|+C' },
+      { f: '\\int e^x\\,dx', d: 'e^x+C' },
+      { f: '\\int a^x\\,dx', d: '\\dfrac{a^x}{\\ln a}+C' },
+      { f: '\\int \\operatorname{sen} x\\,dx', d: '-\\cos x+C' },
+      { f: '\\int \\cos x\\,dx', d: '\\operatorname{sen} x+C' },
+      { f: '\\int \\sec^2 x\\,dx', d: '\\tan x+C' },
+      { f: '\\int \\csc^2 x\\,dx', d: '-\\cot x+C' },
+      { f: '\\int \\sec x\\tan x\\,dx', d: '\\sec x+C' },
+      { f: '\\int \\csc x\\cot x\\,dx', d: '-\\csc x+C' },
+      { f: '\\int \\tan x\\,dx', d: '-\\ln|\\cos x|+C' },
+      { f: '\\int \\cot x\\,dx', d: '\\ln|\\operatorname{sen} x|+C' },
+      { f: '\\int \\sec x\\,dx', d: '\\ln|\\sec x+\\tan x|+C' },
+      { f: '\\int \\csc x\\,dx', d: '-\\ln|\\csc x+\\cot x|+C' },
+      { f: '\\int \\dfrac{dx}{1+x^2}', d: '\\arctan x+C' },
+      { f: '\\int \\dfrac{dx}{a^2+x^2}', d: '\\dfrac{1}{a}\\arctan\\dfrac{x}{a}+C' },
+      { f: '\\int \\dfrac{dx}{\\sqrt{1-x^2}}', d: '\\operatorname{arcsen} x+C' },
+      { f: '\\int \\dfrac{dx}{\\sqrt{a^2-x^2}}', d: '\\operatorname{arcsen}\\dfrac{x}{a}+C' },
+    ]
+  },
+  sustitucion: {
+    name: 'Sustitución',
+    cards: [
+      { f: '\\int [g(x)]^n\\,g\'(x)\\,dx', d: '\\dfrac{[g(x)]^{n+1}}{n+1}+C' },
+      { f: '\\int \\dfrac{g\'(x)}{g(x)}\\,dx', d: '\\ln|g(x)|+C' },
+      { f: '\\int e^{g(x)}\\,g\'(x)\\,dx', d: 'e^{g(x)}+C' },
+      { f: '\\int a^{g(x)}\\,g\'(x)\\,dx', d: '\\dfrac{a^{g(x)}}{\\ln a}+C' },
+      { f: '\\int \\cos(g(x))\\,g\'(x)\\,dx', d: '\\operatorname{sen}(g(x))+C' },
+      { f: '\\int \\operatorname{sen}(g(x))\\,g\'(x)\\,dx', d: '-\\cos(g(x))+C' },
+      { f: '\\text{Regla de sustitución}', d: '\\int f(g(x))\\,g\'(x)\\,dx=\\int f(u)\\,du' },
+    ]
+  },
+  tecnicas: {
+    name: 'Técnicas',
+    cards: [
+      { f: '\\text{Integración por partes}', d: '\\int u\\,dv = uv-\\int v\\,du' },
+      { f: '\\text{Elección de } u', d: '\\text{ILATE: Inv, Log, Alg, Trig, Exp}' },
+      { f: '\\text{Fracc. parcial: factor lineal}', d: '\\dfrac{A}{x-a}' },
+      { f: '\\text{Fracc. parcial: lineal repetido}', d: '\\dfrac{A}{x-a}+\\dfrac{B}{(x-a)^2}' },
+      { f: '\\text{Fracc. parcial: cuadrático irred.}', d: '\\dfrac{Ax+B}{x^2+bx+c}' },
+      { f: '\\text{Completar cuadrados}', d: 'x^2+bx+c=\\left(x+\\tfrac{b}{2}\\right)^2+k' },
+      { f: 't=\\tan\\tfrac{\\theta}{2}', d: '\\operatorname{sen}\\theta=\\dfrac{2t}{1+t^2},\\; \\cos\\theta=\\dfrac{1-t^2}{1+t^2},\\; d\\theta=\\dfrac{2\\,dt}{1+t^2}' },
+    ]
+  },
+  definida: {
+    name: 'Definida',
+    cards: [
+      { f: '\\text{Teorema Fundamental}', d: '\\int_a^b f(x)\\,dx=F(b)-F(a)' },
+      { f: '\\text{Sustitución (definida)}', d: '\\int_a^b f(g)\\,g\'\\,dx=\\int_{g(a)}^{g(b)} f(u)\\,du' },
+      { f: '\\text{Por partes (definida)}', d: '\\int_a^b u\\,dv=\\big[uv\\big]_a^b-\\int_a^b v\\,du' },
+      { f: '\\int_a^a f(x)\\,dx', d: '0' },
+      { f: '\\int_a^b f(x)\\,dx \\;(\\text{invertir})', d: '-\\int_b^a f(x)\\,dx' },
+      { f: '\\int_a^b f(x)\\,dx \\;(\\text{partir})', d: '\\int_a^c f+\\int_c^b f' },
+      { f: '\\int_a^b k\\,dx', d: 'k(b-a)' },
+    ]
+  },
+  areas: {
+    name: 'Áreas',
+    cards: [
+      { f: '\\text{Área bajo la curva } (f\\ge 0)', d: 'A=\\int_a^b f(x)\\,dx' },
+      { f: '\\text{Área con signo}', d: 'A=\\int_a^b |f(x)|\\,dx' },
+      { f: '\\text{Área entre curvas (en } x)', d: 'A=\\int_a^b [f(x)-g(x)]\\,dx,\\; f\\ge g' },
+      { f: '\\text{Área entre curvas (en } y)', d: 'A=\\int_c^d [x_{\\text{der}}-x_{\\text{izq}}]\\,dy' },
+      { f: '\\text{Pasos área entre curvas}', d: '\\text{1) intersecciones, 2) superior}-\\text{inferior, 3) integrar}' },
+    ]
+  },
+  identidades: {
+    name: 'Identid.',
+    cards: [
+      { f: '\\operatorname{sen}^2 x+\\cos^2 x', d: '1' },
+      { f: '1+\\tan^2 x', d: '\\sec^2 x' },
+      { f: '1+\\cot^2 x', d: '\\csc^2 x' },
+      { f: '\\tan^2 x', d: '\\sec^2 x-1' },
+      { f: '\\operatorname{sen}^2 x', d: '\\dfrac{1-\\cos 2x}{2}' },
+      { f: '\\cos^2 x', d: '\\dfrac{1+\\cos 2x}{2}' },
+      { f: '\\operatorname{sen} 2x', d: '2\\operatorname{sen} x\\cos x' },
+    ]
+  },
+};
+
+/* ============================================================
+   QUIZ POOL — preguntas con distractores plausibles
+============================================================ */
+
+const QUIZ_POOL = [
+  { q: '\\int x^5\\,dx', label: 'Integrá la siguiente función', a: '\\dfrac{x^6}{6}+C', opts: ['\\dfrac{x^6}{6}+C','\\dfrac{x^6}{5}+C','5x^4+C','6x^6+C'] },
+  { q: '\\int x^{-1}\\,dx', label: 'Integrá (¡ojo con el caso especial!)', a: '\\ln|x|+C', opts: ['\\ln|x|+C','\\dfrac{x^0}{0}+C','-x^{-2}+C','\\dfrac{1}{x^2}+C'] },
+  { q: '\\int \\dfrac{1}{x^2}\\,dx', label: 'Integrá la siguiente función', a: '-\\dfrac{1}{x}+C', opts: ['-\\dfrac{1}{x}+C','\\ln|x^2|+C','\\dfrac{1}{x}+C','-\\dfrac{2}{x^3}+C'] },
+  { q: '\\int e^x\\,dx', label: 'Integrá la siguiente función', a: 'e^x+C', opts: ['e^x+C','\\dfrac{e^x}{x}+C','x\\,e^{x-1}+C','e^{x+1}+C'] },
+  { q: '\\int 5^x\\,dx', label: 'Integrá la siguiente función', a: '\\dfrac{5^x}{\\ln 5}+C', opts: ['\\dfrac{5^x}{\\ln 5}+C','5^x\\ln 5+C','\\dfrac{5^{x+1}}{x+1}+C','5^x+C'] },
+  { q: '\\int \\cos x\\,dx', label: 'Integrá la siguiente función', a: '\\operatorname{sen} x+C', opts: ['\\operatorname{sen} x+C','-\\operatorname{sen} x+C','\\cos x+C','-\\cos x+C'] },
+  { q: '\\int \\operatorname{sen} x\\,dx', label: 'Integrá la siguiente función', a: '-\\cos x+C', opts: ['-\\cos x+C','\\cos x+C','\\operatorname{sen} x+C','-\\operatorname{sen} x+C'] },
+  { q: '\\int \\sec^2 x\\,dx', label: 'Integrá la siguiente función', a: '\\tan x+C', opts: ['\\tan x+C','\\sec x+C','-\\cot x+C','\\sec x\\tan x+C'] },
+  { q: '\\int \\dfrac{dx}{1+x^2}', label: 'Integrá la siguiente función', a: '\\arctan x+C', opts: ['\\arctan x+C','\\operatorname{arcsen} x+C','\\ln(1+x^2)+C','\\dfrac{1}{1+x^2}+C'] },
+  { q: '\\int \\dfrac{dx}{\\sqrt{1-x^2}}', label: 'Integrá la siguiente función', a: '\\operatorname{arcsen} x+C', opts: ['\\operatorname{arcsen} x+C','\\arctan x+C','\\arccos x+C','\\sqrt{1-x^2}+C'] },
+  { q: '\\int (3x^2-4x+1)\\,dx', label: 'Integrá término por término', a: 'x^3-2x^2+x+C', opts: ['x^3-2x^2+x+C','6x-4+C','x^3-4x^2+x+C','3x^3-2x^2+x+C'] },
+  { q: '\\int 7\\,dx', label: 'Integrá la siguiente función', a: '7x+C', opts: ['7x+C','7+C','0+C','\\dfrac{7x^2}{2}+C'] },
+  { q: '\\int 2x\\,e^{x^2}\\,dx', label: 'Por sustitución', a: 'e^{x^2}+C', opts: ['e^{x^2}+C','2e^{x^2}+C','x^2 e^{x^2}+C','\\dfrac{e^{x^2}}{2x}+C'] },
+  { q: '\\int \\dfrac{2x}{x^2+1}\\,dx', label: 'Por sustitución', a: '\\ln|x^2+1|+C', opts: ['\\ln|x^2+1|+C','\\dfrac{2}{x^2+1}+C','2\\arctan x+C','\\dfrac{1}{x^2+1}+C'] },
+  { q: '\\int \\cos(3x)\\,dx', label: 'Por sustitución', a: '\\dfrac{1}{3}\\operatorname{sen}(3x)+C', opts: ['\\dfrac{1}{3}\\operatorname{sen}(3x)+C','3\\operatorname{sen}(3x)+C','\\operatorname{sen}(3x)+C','-\\dfrac{1}{3}\\operatorname{sen}(3x)+C'] },
+  { q: '\\int (x+1)^{10}\\,dx', label: 'Por sustitución', a: '\\dfrac{(x+1)^{11}}{11}+C', opts: ['\\dfrac{(x+1)^{11}}{11}+C','10(x+1)^9+C','\\dfrac{(x+1)^{11}}{10}+C','(x+1)^{11}+C'] },
+  { q: '\\int u\\,dv', label: '¿Fórmula de integración por partes?', a: 'uv-\\int v\\,du', opts: ['uv-\\int v\\,du','uv+\\int v\\,du','\\int v\\,du-uv','u\\,v'] },
+  { q: '\\tan^2 x', label: 'Para integrarla, ¿a qué equivale?', a: '\\sec^2 x-1', opts: ['\\sec^2 x-1','1-\\sec^2 x','\\csc^2 x-1','\\sec^2 x+1'] },
+  { q: '\\int_a^b f(x)\\,dx', label: 'Teorema Fundamental del Cálculo', a: 'F(b)-F(a)', opts: ['F(b)-F(a)','F(a)-F(b)','f(b)-f(a)','F(b)+F(a)'] },
+  { q: '\\int_0^2 x\\,dx', label: 'Evaluá la integral definida', a: '2', opts: ['2','4','1','\\dfrac{1}{2}'] },
+  { q: '\\int_1^e \\dfrac{1}{x}\\,dx', label: 'Evaluá la integral definida', a: '1', opts: ['1','e','0','e-1'] },
+  { q: '\\int_0^{\\pi} \\operatorname{sen} x\\,dx', label: 'Evaluá la integral definida', a: '2', opts: ['2','0','1','\\pi'] },
+  { q: '\\int_a^a f(x)\\,dx', label: 'Propiedad de la integral definida', a: '0', opts: ['0','f(a)','F(a)','1'] },
+  { q: '\\text{Área entre } f\\ge g \\text{ en } [a,b]', label: '¿Cuál es la fórmula?', a: '\\int_a^b [f-g]\\,dx', opts: ['\\int_a^b [f-g]\\,dx','\\int_a^b [g-f]\\,dx','\\int_a^b f\\cdot g\\,dx','\\int_a^b (f+g)\\,dx'] },
+  { q: '\\text{Sustitución en una definida}', label: '¿Qué hay que cambiar?', a: '\\text{los límites de integración}', opts: ['\\text{los límites de integración}','\\text{nada}','\\text{el signo}','\\text{solo la variable}'] },
+];
+
+/* ============================================================
+   FORMULARIO (cheat sheet)
+============================================================ */
+
+const SHEET = [
+  {
+    num: '01', title: 'Integrales inmediatas', sub: 'La base — todas. Cada una es una derivada leída al revés',
+    rows: [
+      ['\\int k\\,dx', 'kx + C'],
+      ['\\int x^n\\,dx \\;\\;(n\\neq-1)', '\\dfrac{x^{n+1}}{n+1}+C'],
+      ['\\int \\dfrac{1}{x}\\,dx', '\\ln|x|+C'],
+      ['\\int e^x\\,dx', 'e^x+C'],
+      ['\\int a^x\\,dx', '\\dfrac{a^x}{\\ln a}+C'],
+      ['\\int \\operatorname{sen} x\\,dx', '-\\cos x+C'],
+      ['\\int \\cos x\\,dx', '\\operatorname{sen} x+C'],
+      ['\\int \\sec^2 x\\,dx', '\\tan x+C'],
+      ['\\int \\csc^2 x\\,dx', '-\\cot x+C'],
+      ['\\int \\sec x\\tan x\\,dx', '\\sec x+C'],
+      ['\\int \\csc x\\cot x\\,dx', '-\\csc x+C'],
+      ['\\int \\tan x\\,dx', '-\\ln|\\cos x|+C'],
+      ['\\int \\cot x\\,dx', '\\ln|\\operatorname{sen} x|+C'],
+      ['\\int \\sec x\\,dx', '\\ln|\\sec x+\\tan x|+C'],
+      ['\\int \\csc x\\,dx', '-\\ln|\\csc x+\\cot x|+C'],
+      ['\\int \\dfrac{dx}{1+x^2}', '\\arctan x+C'],
+      ['\\int \\dfrac{dx}{a^2+x^2}', '\\dfrac{1}{a}\\arctan\\dfrac{x}{a}+C'],
+      ['\\int \\dfrac{dx}{\\sqrt{1-x^2}}', '\\operatorname{arcsen} x+C'],
+      ['\\int \\dfrac{dx}{\\sqrt{a^2-x^2}}', '\\operatorname{arcsen}\\dfrac{x}{a}+C'],
+    ]
+  },
+  {
+    num: '02', title: 'Propiedades / linealidad', sub: 'Las constantes salen; la suma se separa',
+    rows: [
+      ['\\int k\\,f(x)\\,dx', 'k\\int f(x)\\,dx'],
+      ['\\int [f(x)\\pm g(x)]\\,dx', '\\int f\\,dx \\pm \\int g\\,dx'],
+    ]
+  },
+  {
+    num: '03', title: 'Formas con g(x) — sustitución', sub: 'g = g(x). Si ves adentro su propia derivada, es sustitución',
+    rows: [
+      ['\\int [g]^n\\,g\'\\,dx', '\\dfrac{[g]^{n+1}}{n+1}+C'],
+      ['\\int \\dfrac{g\'}{g}\\,dx', '\\ln|g|+C'],
+      ['\\int e^{g}\\,g\'\\,dx', 'e^{g}+C'],
+      ['\\int a^{g}\\,g\'\\,dx', '\\dfrac{a^{g}}{\\ln a}+C'],
+      ['\\int \\cos(g)\\,g\'\\,dx', '\\operatorname{sen}(g)+C'],
+      ['\\int \\operatorname{sen}(g)\\,g\'\\,dx', '-\\cos(g)+C'],
+      ['\\text{Regla general}', '\\int f(g)\\,g\'\\,dx=\\int f(u)\\,du'],
+    ]
+  },
+  {
+    num: '04', title: 'Técnicas de integración', sub: 'Cuando no es inmediata, llevala a algo que sí lo sea',
+    rows: [
+      ['\\text{Por partes}', '\\int u\\,dv=uv-\\int v\\,du'],
+      ['\\text{Elección de } u', '\\text{ILATE: Inv, Log, Alg, Trig, Exp}'],
+      ['\\text{Fracc. parcial (lineal)}', '\\dfrac{A}{x-a}'],
+      ['\\text{Lineal repetido}', '\\dfrac{A}{x-a}+\\dfrac{B}{(x-a)^2}'],
+      ['\\text{Cuadrático irreducible}', '\\dfrac{Ax+B}{x^2+bx+c}'],
+      ['\\text{Completar cuadrados}', '\\left(x+\\tfrac{b}{2}\\right)^2+k'],
+      ['t=\\tan\\tfrac{\\theta}{2}', '\\operatorname{sen}\\theta=\\tfrac{2t}{1+t^2},\\; \\cos\\theta=\\tfrac{1-t^2}{1+t^2}'],
+      ['\\phantom{t}', 'd\\theta=\\dfrac{2\\,dt}{1+t^2}'],
+    ]
+  },
+  {
+    num: '05', title: 'Integral definida (T.F.C.)', sub: 'Acá la integral es un número, no una familia',
+    rows: [
+      ['\\int_a^b f(x)\\,dx', 'F(b)-F(a)'],
+      ['\\int_a^a f\\,dx', '0'],
+      ['\\int_a^b f\\,dx', '-\\int_b^a f\\,dx'],
+      ['\\int_a^b f\\,dx', '\\int_a^c f+\\int_c^b f'],
+      ['\\int_a^b k\\,dx', 'k(b-a)'],
+      ['\\text{Sustitución (límites)}', '\\int_a^b f(g)\\,g\'\\,dx=\\int_{g(a)}^{g(b)} f(u)\\,du'],
+      ['\\text{Por partes (definida)}', '\\int_a^b u\\,dv=[uv]_a^b-\\int_a^b v\\,du'],
+    ]
+  },
+  {
+    num: '06', title: 'Áreas', sub: 'Siempre: dibujar primero',
+    rows: [
+      ['\\text{Bajo la curva } (f\\ge0)', 'A=\\int_a^b f(x)\\,dx'],
+      ['\\text{Con signo}', 'A=\\int_a^b |f(x)|\\,dx'],
+      ['\\text{Entre curvas (en } x)', 'A=\\int_a^b [f-g]\\,dx,\\; f\\ge g'],
+      ['\\text{Entre curvas (en } y)', 'A=\\int_c^d [x_{R}-x_{L}]\\,dy'],
+    ]
+  },
+  {
+    num: '07', title: 'Identidades útiles', sub: 'Para reescribir antes de integrar',
+    rows: [
+      ['\\operatorname{sen}^2 x+\\cos^2 x', '1'],
+      ['1+\\tan^2 x', '\\sec^2 x'],
+      ['1+\\cot^2 x', '\\csc^2 x'],
+      ['\\tan^2 x', '\\sec^2 x-1'],
+      ['\\operatorname{sen}^2 x', '\\dfrac{1-\\cos 2x}{2}'],
+      ['\\cos^2 x', '\\dfrac{1+\\cos 2x}{2}'],
+      ['\\operatorname{sen} 2x', '2\\operatorname{sen} x\\cos x'],
+    ]
+  },
+];
+
+/* ============================================================
+   KaTeX helpers — \operatorname{arcsen} no existe nativo; lo definimos
+============================================================ */
+
+const KATEX_MACROS = {
+  '\\sen': '\\operatorname{sen}',
+};
+
+function renderMath(el, tex, displayMode = true) {
+  if (!window.katex) {
+    setTimeout(() => renderMath(el, tex, displayMode), 50);
+    return;
+  }
+  try {
+    katex.render(tex, el, {
+      displayMode,
+      throwOnError: false,
+      macros: KATEX_MACROS,
+    });
+  } catch (e) {
+    el.textContent = tex;
+  }
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.panel).classList.add('active');
+  });
+});
+
+/* ============================================================
+   FLASHCARDS
+============================================================ */
+
+let activeDeck = 'all';
+let cardList = [];
+let cardIdx = 0;
+
+const IDENTITY_DECKS = new Set(['tecnicas', 'definida', 'areas', 'identidades']);
+
+function buildCardList() {
+  if (activeDeck === 'all') {
+    cardList = [];
+    Object.entries(DECKS).forEach(([key, deck]) => {
+      deck.cards.forEach(c => cardList.push({ ...c, deckName: deck.name, isIdentity: IDENTITY_DECKS.has(key) }));
+    });
+  } else {
+    const isId = IDENTITY_DECKS.has(activeDeck);
+    cardList = DECKS[activeDeck].cards.map(c => ({ ...c, deckName: DECKS[activeDeck].name, isIdentity: isId }));
+  }
+  cardIdx = 0;
+}
+
+function renderCard() {
+  const c = cardList[cardIdx];
+  if (!c) return;
+  const cardEl = document.getElementById('card');
+  cardEl.classList.remove('flipped');
+  cardEl.classList.toggle('identity-type', !!c.isIdentity);
+  document.getElementById('tag-front').textContent = c.deckName + (c.isIdentity ? ' · concepto' : ' · integral');
+  document.getElementById('tag-back').textContent = c.deckName + (c.isIdentity ? ' · fórmula' : ' · resultado');
+  renderMath(document.getElementById('front-content'), c.f);
+  renderMath(document.getElementById('back-content'), c.d);
+  document.getElementById('card-progress').innerHTML = `<strong>${cardIdx + 1}</strong> / ${cardList.length}`;
+
+  const badge = document.getElementById('tier-badge');
+  if (c.tier === 1) {
+    badge.className = 'tier-badge t1';
+    badge.textContent = 'Alta';
+  } else if (c.tier === 2) {
+    badge.className = 'tier-badge t2';
+    badge.textContent = 'Media';
+  } else {
+    badge.className = 'tier-badge';
+    badge.textContent = '';
+  }
+}
+
+function buildPills() {
+  const wrap = document.getElementById('cat-pills');
+  wrap.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = 'pill active';
+  all.textContent = 'Todas';
+  all.dataset.deck = 'all';
+  wrap.appendChild(all);
+  Object.entries(DECKS).forEach(([key, deck]) => {
+    const btn = document.createElement('button');
+    btn.className = 'pill';
+    btn.textContent = deck.name;
+    btn.dataset.deck = key;
+    wrap.appendChild(btn);
+  });
+  wrap.addEventListener('click', e => {
+    if (e.target.classList.contains('pill')) {
+      wrap.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      e.target.classList.add('active');
+      activeDeck = e.target.dataset.deck;
+      buildCardList();
+      renderCard();
+    }
+  });
+}
+
+document.getElementById('card').addEventListener('click', e => {
+  if (e.target.tagName === 'BUTTON') return;
+  document.getElementById('card').classList.toggle('flipped');
+});
+document.getElementById('flip-btn').addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('card').classList.toggle('flipped');
+});
+document.getElementById('next-btn').addEventListener('click', () => {
+  cardIdx = (cardIdx + 1) % cardList.length;
+  renderCard();
+});
+document.getElementById('prev-btn').addEventListener('click', () => {
+  cardIdx = (cardIdx - 1 + cardList.length) % cardList.length;
+  renderCard();
+});
+document.getElementById('shuffle-btn').addEventListener('click', () => {
+  for (let i = cardList.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cardList[i], cardList[j]] = [cardList[j], cardList[i]];
+  }
+  cardIdx = 0;
+  renderCard();
+});
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('cards').classList.contains('active')) return;
+  if (e.key === 'ArrowRight') document.getElementById('next-btn').click();
+  if (e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
+  if (e.key === ' ') { e.preventDefault(); document.getElementById('flip-btn').click(); }
+});
+
+/* ============================================================
+   QUIZ
+============================================================ */
+
+let quizQs = [];
+let qIndex = 0;
+let qScore = 0;
+let answered = false;
+let quizSize = 10;
+
+function buildQuizConfig() {
+  const wrap = document.getElementById('quiz-config');
+  wrap.innerHTML = '';
+  const options = [5, 10, 15, 20, 'Todas'];
+  options.forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (n === 10 ? ' active' : '');
+    b.textContent = n === 'Todas' ? `Todas (${QUIZ_POOL.length})` : `${n} preguntas`;
+    b.addEventListener('click', () => {
+      wrap.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      b.classList.add('active');
+      quizSize = n === 'Todas' ? Infinity : n;
+    });
+    wrap.appendChild(b);
+  });
+}
+
+function startQuiz() {
+  const shuffled = [...QUIZ_POOL].sort(() => Math.random() - 0.5);
+  quizQs = shuffled.slice(0, Math.min(quizSize, QUIZ_POOL.length));
+  qIndex = 0;
+  qScore = 0;
+  answered = false;
+  document.getElementById('quiz-intro').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-game').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = quizQs[qIndex];
+  answered = false;
+  document.getElementById('q-label').textContent = q.label;
+  renderMath(document.getElementById('q-formula'), q.q);
+  document.getElementById('qnum').textContent = `${qIndex + 1} / ${quizQs.length}`;
+  document.getElementById('score-num').textContent = qScore;
+  document.getElementById('progress-fill').style.transform = `scaleX(${qIndex / quizQs.length})`;
+
+  const optsDiv = document.getElementById('options');
+  optsDiv.innerHTML = '';
+  const shuffledOpts = [...q.opts].sort(() => Math.random() - 0.5);
+  const letters = ['A', 'B', 'C', 'D'];
+  shuffledOpts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span class="option-text"></span>`;
+    renderMath(btn.querySelector('.option-text'), opt, false);
+    btn.addEventListener('click', () => answerQuestion(btn, opt, q.a));
+    optsDiv.appendChild(btn);
+  });
+
+  document.getElementById('next-q').classList.remove('show');
+}
+
+function answerQuestion(btn, picked, correct) {
+  if (answered) return;
+  answered = true;
+  const allBtns = document.querySelectorAll('.option');
+  allBtns.forEach(b => b.classList.add('disabled'));
+
+  if (picked === correct) {
+    btn.classList.add('correct');
+    qScore++;
+    document.getElementById('score-num').textContent = qScore;
+  } else {
+    btn.classList.add('wrong');
+    allBtns.forEach(b => {
+      if (b.querySelector('.option-text').textContent.trim() ||
+          b.querySelector('.option-text').innerHTML.includes('katex')) {
+        // Encontrar la correcta y resaltarla
+      }
+    });
+    // marcar correcta
+    allBtns.forEach((b, i) => {
+      const txt = b.querySelector('.option-text');
+      // comparar contra el TeX original
+    });
+    // método más confiable: re-evaluar comparando data
+    const optsDiv = document.getElementById('options');
+    [...optsDiv.children].forEach(child => {
+      // reconstruimos: guardamos correcto como atributo al construir
+    });
+  }
+
+  document.getElementById('next-q').classList.add('show');
+  document.getElementById('progress-fill').style.transform = `scaleX(${(qIndex + 1) / quizQs.length})`;
+}
+
+// Versión más limpia: marcamos data-correct al construir
+function showQuestionV2() {
+  const q = quizQs[qIndex];
+  answered = false;
+  document.getElementById('q-label').textContent = q.label;
+  renderMath(document.getElementById('q-formula'), q.q);
+  document.getElementById('qnum').textContent = `${qIndex + 1} / ${quizQs.length}`;
+  document.getElementById('score-num').textContent = qScore;
+  document.getElementById('progress-fill').style.transform = `scaleX(${qIndex / quizQs.length})`;
+
+  const optsDiv = document.getElementById('options');
+  optsDiv.innerHTML = '';
+  const shuffledOpts = [...q.opts].sort(() => Math.random() - 0.5);
+  const letters = ['A', 'B', 'C', 'D'];
+  shuffledOpts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.dataset.isCorrect = (opt === q.a) ? '1' : '0';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span class="option-text"></span>`;
+    renderMath(btn.querySelector('.option-text'), opt, false);
+    btn.addEventListener('click', () => answerQuestionV2(btn));
+    optsDiv.appendChild(btn);
+  });
+
+  document.getElementById('next-q').classList.remove('show');
+}
+
+function answerQuestionV2(btn) {
+  if (answered) return;
+  answered = true;
+  const allBtns = document.querySelectorAll('.option');
+  allBtns.forEach(b => b.classList.add('disabled'));
+
+  if (btn.dataset.isCorrect === '1') {
+    btn.classList.add('correct');
+    qScore++;
+    document.getElementById('score-num').textContent = qScore;
+  } else {
+    btn.classList.add('wrong');
+    allBtns.forEach(b => {
+      if (b.dataset.isCorrect === '1') b.classList.add('correct');
+    });
+  }
+
+  document.getElementById('next-q').classList.add('show');
+  document.getElementById('progress-fill').style.transform = `scaleX(${(qIndex + 1) / quizQs.length})`;
+}
+
+// Reasignar
+showQuestion = showQuestionV2;
+answerQuestion = answerQuestionV2;
+
+document.getElementById('next-q').addEventListener('click', () => {
+  qIndex++;
+  if (qIndex >= quizQs.length) {
+    finishQuiz();
+  } else {
+    showQuestion();
+  }
+});
+
+function finishQuiz() {
+  document.getElementById('quiz-game').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+  document.getElementById('final-score').textContent = `${qScore} / ${quizQs.length}`;
+  const pct = qScore / quizQs.length;
+  let v = '';
+  if (pct === 1) v = 'Perfecto. Dominio total.';
+  else if (pct >= 0.9) v = 'Casi perfecto — vas excelente.';
+  else if (pct >= 0.7) v = 'Vas muy bien, repasá los detalles.';
+  else if (pct >= 0.5) v = 'Vas avanzando, seguí practicando.';
+  else v = 'Repasá las tablas — vas mejorar rápido.';
+  document.getElementById('verdict').textContent = v;
+}
+
+document.getElementById('start-quiz').addEventListener('click', startQuiz);
+document.getElementById('restart').addEventListener('click', startQuiz);
+
+/* ============================================================
+   CHEAT SHEET
+============================================================ */
+
+function renderSheet() {
+  const wrap = document.getElementById('sheet-content');
+  wrap.innerHTML = '';
+  SHEET.forEach(section => {
+    const sec = document.createElement('div');
+    sec.className = 'sheet-section';
+    let subHTML = '';
+    if (section.sub.includes('\\')) {
+      subHTML = `<div class="sub" id="sub-${section.num}"></div>`;
+    } else {
+      subHTML = `<div class="sub">${section.sub}</div>`;
+    }
+    sec.innerHTML = `
+      <h2><span class="num">${section.num}</span><em>${section.title}</em></h2>
+      ${subHTML}
+    `;
+    if (section.sub.includes('\\')) {
+      const subEl = sec.querySelector(`#sub-${section.num}`);
+      subEl.textContent = section.sub;
+    }
+    const table = document.createElement('table');
+    table.className = 'formula-table';
+    const thead = document.createElement('thead');
+    const h1 = section.headers ? section.headers[0] : 'Expresión';
+    const h2 = section.headers ? section.headers[1] : 'Resultado';
+    thead.innerHTML = `<tr><th>${h1}</th><th>${h2}</th></tr>`;
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    section.rows.forEach(([k, v]) => {
+      const tr = document.createElement('tr');
+      const tdKey = document.createElement('td');
+      const tdVal = document.createElement('td');
+      tr.appendChild(tdKey);
+      tr.appendChild(tdVal);
+      tbody.appendChild(tr);
+      renderMath(tdKey, k, false);
+      renderMath(tdVal, v, false);
+    });
+    table.appendChild(tbody);
+    sec.appendChild(table);
+    if (section.note) {
+      const noteEl = document.createElement('p');
+      noteEl.className = 'sheet-note';
+      noteEl.innerHTML = section.note;
+      sec.appendChild(noteEl);
+    }
+    wrap.appendChild(sec);
+  });
+}
+
+/* ============================================================
+   INIT (esperar a KaTeX)
+============================================================ */
+
+function init() {
+  if (!window.katex) {
+    setTimeout(init, 50);
+    return;
+  }
+  buildPills();
+  buildCardList();
+  renderCard();
+  buildQuizConfig();
+  renderSheet();
+  renderGuide();
+}
+function renderGuide() {
+  if (!window.renderMathInElement) { setTimeout(renderGuide, 50); return; }
+  renderMathInElement(document.getElementById('guide'), {
+    delimiters: [ {left:'$$',right:'$$',display:true}, {left:'$',right:'$',display:false} ],
+    macros: {'\operatorname{arcsen}':'\operatorname{arcsen}', '\sen':'\operatorname{sen}'},
+    throwOnError: false,
+  });
+}
+init();
+</script>
+</body>
+</html>

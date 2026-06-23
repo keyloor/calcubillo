@@ -1,0 +1,13 @@
+{
+  "name": "calculo-integrales",
+  "version": "1.0.0",
+  "description": "Estudio de Cálculo I - Integración III Parcial",
+  "main": "Estudio_III_Parcial_Integrales.html",
+  "scripts": {
+    "dev": "python -m http.server 3000",
+    "build": ""
+  },
+  "keywords": ["calculo", "integrales", "matematicas"],
+  "author": "",
+  "license": "ISC"
+}
