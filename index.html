@@ -851,23 +851,10 @@
       </ol>
     </article>
 
-    <article class="guide-block">
-      <h3><span class="gbadge">E</span>Completar cuadrados + inversas</h3>
-      <span class="when"><b>CUÁNDO</b> un denominador cuadrático que no factoriza</span>
-      <p>Si el denominador es un cuadrático irreducible (sin raíces reales), completo cuadrados para llevarlo a la forma $a^2+u^2$ o $a^2-u^2$, y reconozco arctan o arcsin:</p>
-      $$\int\frac{du}{a^2+u^2}=\frac{1}{a}\arctan\frac{u}{a}+C \qquad \int\frac{du}{\sqrt{a^2-u^2}}=\operatorname{arcsen}\frac{u}{a}+C$$
-    </article>
+
 
     <article class="guide-block">
-      <h3><span class="gbadge">F</span>Sustitución $t=\tan(\theta/2)$</h3>
-      <span class="when"><b>CUÁNDO</b> una función racional de seno y coseno</span>
-      <p>Convierte cualquier combinación racional de $\operatorname{sen}\theta$ y $\cos\theta$ en una fracción algebraica en $t$. Las tres equivalencias que hay que memorizar:</p>
-      $$\operatorname{sen}\theta=\frac{2t}{1+t^2},\qquad \cos\theta=\frac{1-t^2}{1+t^2},\qquad d\theta=\frac{2\,dt}{1+t^2}$$
-      <p>Después de sustituir suele quedar una fracción que se termina con fracciones parciales.</p>
-    </article>
-
-    <article class="guide-block">
-      <h3><span class="gbadge">G</span>La integral definida (T.F.C.)</h3>
+      <h3><span class="gbadge">E</span>La integral definida (T.F.C.)</h3>
       <span class="when"><b>CUÁNDO</b> hay límites; el resultado es un número</span>
       <p>Acá la integral deja de ser una familia y pasa a ser <strong>un número</strong> (el área neta entre $a$ y $b$). El Teorema Fundamental del Cálculo dice:</p>
       $$\int_a^b f(x)\,dx = F(b)-F(a)$$
@@ -879,13 +866,13 @@
     </article>
 
     <article class="guide-block">
-      <h3><span class="gbadge">H</span>Sustitución y partes en definidas</h3>
+      <h3><span class="gbadge">F</span>Sustitución y partes en definidas</h3>
       <p>Igual que en las indefinidas, con un cuidado extra: si hago un cambio de variable, <strong>tengo que cambiar también los límites</strong> a la nueva variable (o devolver la variable original antes de evaluar). En por partes, evalúo el término de borde:</p>
       $$\int_a^b u\,dv = \big[uv\big]_a^b - \int_a^b v\,du$$
     </article>
 
     <article class="guide-block">
-      <h3><span class="gbadge">I</span>Áreas</h3>
+      <h3><span class="gbadge">G</span>Áreas</h3>
       <span class="when"><b>CUÁNDO</b> me piden el área de una región</span>
       <p><strong>Bajo la curva</strong> (si $f\ge 0$): $A=\int_a^b f(x)\,dx$. Si la función cruza el eje, uso $|f|$ y parto el intervalo donde cambia de signo.</p>
       <p><strong>Entre dos curvas</strong>: integro la de arriba menos la de abajo.</p>
@@ -963,8 +950,6 @@ const DECKS = {
       { f: '\\text{Fracc. parcial: factor lineal}', d: '\\dfrac{A}{x-a}' },
       { f: '\\text{Fracc. parcial: lineal repetido}', d: '\\dfrac{A}{x-a}+\\dfrac{B}{(x-a)^2}' },
       { f: '\\text{Fracc. parcial: cuadrático irred.}', d: '\\dfrac{Ax+B}{x^2+bx+c}' },
-      { f: '\\text{Completar cuadrados}', d: 'x^2+bx+c=\\left(x+\\tfrac{b}{2}\\right)^2+k' },
-      { f: 't=\\tan\\tfrac{\\theta}{2}', d: '\\operatorname{sen}\\theta=\\dfrac{2t}{1+t^2},\\; \\cos\\theta=\\dfrac{1-t^2}{1+t^2},\\; d\\theta=\\dfrac{2\\,dt}{1+t^2}' },
     ]
   },
   definida: {
@@ -1091,9 +1076,6 @@ const SHEET = [
       ['\\text{Fracc. parcial (lineal)}', '\\dfrac{A}{x-a}'],
       ['\\text{Lineal repetido}', '\\dfrac{A}{x-a}+\\dfrac{B}{(x-a)^2}'],
       ['\\text{Cuadrático irreducible}', '\\dfrac{Ax+B}{x^2+bx+c}'],
-      ['\\text{Completar cuadrados}', '\\left(x+\\tfrac{b}{2}\\right)^2+k'],
-      ['t=\\tan\\tfrac{\\theta}{2}', '\\operatorname{sen}\\theta=\\tfrac{2t}{1+t^2},\\; \\cos\\theta=\\tfrac{1-t^2}{1+t^2}'],
-      ['\\phantom{t}', 'd\\theta=\\dfrac{2\\,dt}{1+t^2}'],
     ]
   },
   {
